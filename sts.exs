@@ -1,5 +1,7 @@
 #!/usr/bin/env iex
 
+# NOTE: :rand.uniform(n) generates a random number in [1,n].
+
 # The random seed to use.
 # As we are only using one process, we do not need to retrieve and pass the sede aro
 :rand.seed(:exsplus, {1, 2, 3})
@@ -13,29 +15,30 @@ defmodule RandomSTS do
   # RANDOM ELEMENT FROM LIST #
   ############################
   # Given a list, get a random element from it.
-  def random_elem(list, seed) when is_list(list) and length(list) > 0 do
-    elem = Enum.at list, :rand.uniform(length(list)) - 1
-    {elem, :rand.export_seed()}
+  def random_elem(list) when is_list(list) and length(list) > 0 do
+    idx = :rand.uniform(length(list)) - 1
+    Enum.at list, idx
   end
 
   #############################################
   # RANDOM ELEMENT FROM LIST AND DELETED LIST #
   #############################################
   # Given a list, get a random element from it, and then return the element and the list without the element.
-  def random_elem_delete(list, seed) do
-    {elem, seed} = random_elem list, seed
-    {elem, (List.delete list, elem), seed}
+  def random_elem_delete(list) do
+    elem = random_elem list
+    list = List.delete list, elem
+    {elem, list}
   end
 
-  def two_random_elements(list0, seed0) when length(list0) >= 2 do
+  def two_random_elements(list) when length(list) >= 2 do
     # Get the first element.
-    {elem1, list1, seed1} = random_elem_delete(list0, seed0)
+    {elem1, list} = random_elem_delete list
 
     # Get the second element.
-    {elem2, list2, seed2} = random_elem_delete(list1, seed1)
+    {elem2, list} = random_elem_delete list
 
     # Return the pair of elements in order, the uodated list, and the seed.
-    {{min(elem1, elem2), max(elem1, elem2)}, list2, seed2}
+    {{elem1, elem2}, list}
   end
 end
 
@@ -80,21 +83,20 @@ IO.inspect mpm
 
 IO.puts "*** Iteration 1 ***"
 
-{e1, seed} = RandomSTS.random_elem Map.keys(mpm), seed
+e1 = RandomSTS.random_elem Map.keys(mpm)
 IO.puts "Selected element #{e1}"
-IO.puts "Seed is:"
-IO.inspect seed
 
 IO.puts "*** Two random elements ***"
-{{e2, e3}, deleted_list, seed} = RandomSTS.two_random_elements mpm[e1], seed
+{{e2, e3}, deleted_list} = RandomSTS.two_random_elements mpm[e1]
 IO.puts "Selected elements #{e2}, #{e3}"
 IO.puts "List for #{e1} is now:"
 IO.inspect deleted_list
-IO.puts "Seed is:"
-IO.inspect seed
 
 IO.puts "*** Modifying mpm ***"
 mpm = Map.put mpm, e1, deleted_list
 IO.inspect mpm
+
+IO.puts "*** Seed is now ***"
+IO.inspect :rand.export_seed()
 
 System.halt 0
