@@ -11,25 +11,35 @@ v = 7
 
 # Module to contain the randomness.
 defmodule RandomSTS do
-  ############################
-  # RANDOM ELEMENT FROM LIST #
-  ############################
-  # Given a list, get a random element from it.
+  ###############
+  # RANDOM ELEM #
+  ###############
+  # Given a nonempty list:
+  # 1. Return a random element from it.
   def random_elem(list) when is_list(list) and length(list) > 0 do
     idx = :rand.uniform(length(list)) - 1
     Enum.at list, idx
   end
 
-  #############################################
-  # RANDOM ELEMENT FROM LIST AND DELETED LIST #
-  #############################################
-  # Given a list, get a random element from it, and then return the element and the list without the element.
-  def random_elem_delete(list) do
+  ######################
+  # RANDOM ELEM DELETE #
+  ######################
+  # Given a nonempty list:
+  # 1. Extract an element from the list.
+  # 2. Return the element and the list with the random element removed.
+  defp random_elem_delete(list) when is_list(list) and length(list) > 0 do
     elem = random_elem list
     list = List.delete list, elem
     {elem, list}
   end
 
+
+  #######################
+  # TWO RANDOM ELEMENTS #
+  #######################
+  # Given a list containing at least two elements:
+  # 1. Extract two random elements from a list.
+  # 2. Return the two random elements (in any order) and the list with the random elements removed.
   def two_random_elements(list) when length(list) >= 2 do
     # Get the first element.
     {elem1, list} = random_elem_delete list
