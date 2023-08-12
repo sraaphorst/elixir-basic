@@ -10,9 +10,8 @@ defmodule SteinerTripleSystems do
     generate [], missing_pairs
   end
 
-  def generate(triples, missing_pairs) do
+  defp generate(triples, missing_pairs) do
     if all_pairs_covered? missing_pairs do
-      # triples
       # Sort the triples
       for triple <- triples, do: Enum.sort(triple)
     else
@@ -44,7 +43,7 @@ defmodule SteinerTripleSystems do
 
       else
         # Otherwise, y and z already appear together in some triple with w.
-        triple = Enum.find triples, nil, &triple_contains?(&1, y, z)
+        triple = Enum.find triples, nil, &triple_covers?(&1, y, z)
         triples = List.delete triples, triple
         w = third_element triple, y, z
 
@@ -66,47 +65,36 @@ defmodule SteinerTripleSystems do
   end
 
   # Create the total list of points [0,v).
-  def points(v), do: Enum.to_list(0..v-1)
+  defp points(v), do: Enum.to_list(0..v-1)
 
   # Create the initial map of missing pairs.
   # Should be of the form, for example, for 7:
   # %{0 => [1, 2, 3, 4, 5, 6],
   #   1 => [0, 2, 3, 4, 5, 6],
   #   2 => [0, 1, 3, 4, 5, 6], etc.}
-  def create_missing_pairs_map(v) do
+  defp create_missing_pairs_map(v) do
     points = points(v)
-    Enum.into(points, %{}, fn key ->
-      value = Enum.filter(points, fn x -> x != key end)
-      {key, value}
-    end)
+    Enum.into points, %{}, &{&1, List.delete(points, &1)}
   end
 
-  # Check if all pairs covered.
-  def all_pairs_covered?(missing_pairs) do
+  # Check if all pairs covered, i.e. we have a complete system.
+  defp all_pairs_covered?(missing_pairs) do
     Enum.all? Map.values(missing_pairs), &Enum.empty?/1
   end
 
-  # Get the elements with missing pairs.
-  def missing_pairs(missing_pairs) do
-    for {key, value} <- missing_pairs, not Enum.empty?(value), do: key
-  end
-
   # Get a random element from a list.
-  def random_elem(list) when is_list(list) and length(list) > 0 do
+  defp random_elem(list) when is_list(list) and length(list) > 0 do
     idx = :rand.uniform(length(list)) - 1
     Enum.at list, idx
   end
 
-  def triple_contains?(triple, y, z) do
+  # Determine if a triple covers a pair {y, z}.
+  defp triple_covers?(triple, y, z) do
     Enum.member?(triple, y) and Enum.member?(triple, z)
   end
 
-  def third_element([w, y, z], y, z), do: w
-  def third_element([w, z, y], y, z), do: w
-  def third_element([y, w, z], y, z), do: w
-  def third_element([z, w, y], y, z), do: w
-  def third_element([y, z, w], y, z), do: w
-  def third_element([z, y, w], y, z), do: w
+  # Given a triple and two of its elements, x and y, find the third element.
+  defp third_element(triple, y, z), do: Enum.find(triple, fn x -> x != y and x != z end)
 end
 
 triples = SteinerTripleSystems.generate(7)
