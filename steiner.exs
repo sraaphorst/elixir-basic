@@ -4,7 +4,7 @@
 # using functional programming.
 
 defmodule SteinerTripleSystems do
-  def generate(v, seed) when is_integer(v) and rem(v, 6) in [1,3] do
+  def generate(seed, v) when is_integer(v) and rem(v, 6) in [1,3] do
     missing_pairs = create_missing_pairs_map v
     generate [], missing_pairs, seed
   end
@@ -97,8 +97,8 @@ defmodule SteinerTripleSystems do
   defp third_element(triple, y, z), do: Enum.find(triple, &(&1 != y and &1 != z))
 end
 
-seed = :rand.seed(:exsplus, {1, 2, 3})
-triples = SteinerTripleSystems.generate(7, seed)
-Enum.each triples, fn(t) -> IO.inspect t, charlists: :as_lists end
+:rand.seed(:exsplus, {1, 2, 3})
+|> SteinerTripleSystems.generate(7)
+|> Enum.each(&IO.inspect(&1, charlists: :as_lists))
 
 System.halt 0
