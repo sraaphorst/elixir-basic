@@ -5,11 +5,12 @@
 
 defmodule SteinerTripleSystems do
   def generate(seed, v) when is_integer(v) and rem(v, 6) in [1,3] do
-    missing_pairs = create_missing_pairs_map v
-    generate [], missing_pairs, seed
+    v
+    |> create_missing_pairs_map
+    |> generate([], seed)
   end
 
-  defp generate(triples, missing_pairs, seed) do
+  defp generate(missing_pairs, triples, seed) do
     if all_pairs_covered? missing_pairs do
       # Sort the triples
       for triple <- triples, do: Enum.sort(triple)
@@ -37,9 +38,10 @@ defmodule SteinerTripleSystems do
         missing_pairs = Map.put missing_pairs, y, y_list
 
         z_list = List.delete z_list, y
-        missing_pairs = Map.put missing_pairs, z, z_list
 
-        generate [[x, y, z] | triples], missing_pairs, seed
+        missing_pairs
+        |> Map.put(z, z_list)
+        |> generate([[x, y, z] | triples], seed)
 
       else
         # Otherwise, y and z already appear together in some triple with w.
@@ -57,9 +59,10 @@ defmodule SteinerTripleSystems do
 
         # Mark w and y and z as not being covered.
         w_list = [y, z | missing_pairs[w]]
-        missing_pairs = Map.put missing_pairs, w, w_list
 
-        generate [[x, y, z] | triples], missing_pairs, seed
+        missing_pairs
+        |> Map.put(w, w_list)
+        |> generate([[x, y, z] | triples], seed)
       end
     end
   end
