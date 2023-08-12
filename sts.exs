@@ -75,8 +75,21 @@ defmodule STS do
   # Generate #
   ############
   def generate(v) when is_integer(v) and (rem(v, 6) == 1 or rem(v, 6) == 3) do
-    nil
+    mpm = create_missing_pair_map(v)
+    generate({}, mpm)
   end
+
+  ###################################################
+  # Iterate until there are no more missing triples #
+  ###################################################
+  defp generate(triples, mpm) do
+    if no_missing_pairs mpm do
+      triples
+    else
+
+    end
+  end
+
 
   #####################
   # Create the points #
@@ -158,3 +171,4 @@ System.halt 0
 # Operations
 # 1. If there are no pairs missing, stop: no_missing_pairs
 # 2. Otherwise pick a list with pairs.
+# 3.
