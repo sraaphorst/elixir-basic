@@ -5,15 +5,13 @@
 
 defmodule SteinerTripleSystems do
   def generate(seed, v) when is_integer(v) and rem(v, 6) in [1,3] do
-    v
-    |> create_missing_pairs_map
-    |> generate([], seed)
+    v |> create_missing_pairs_map |> generate([], seed)
   end
 
   defp generate(missing_pairs, triples, seed) do
     if all_pairs_covered? missing_pairs do
       # Sort the triples
-      for triple <- triples, do: Enum.sort(triple)
+      triples |> Enum.map(&Enum.sort/1)
     else
       # Get a point missing a pair.
       candidates = for {key, value} <- missing_pairs, (not Enum.empty? value), do: key
@@ -23,39 +21,37 @@ defmodule SteinerTripleSystems do
       # Get two random elements from the list of uncovered pairs with x and delete them
       # from the list with x.
       {y, seed} = random_elem x_list, seed
-      x_list = List.delete x_list, y
-      {z, seed} = random_elem x_list, seed
-      x_list = List.delete x_list, z
-      missing_pairs = Map.put missing_pairs, x, x_list
+      x_list = x_list |> List.delete(y)
+      {z, seed} = x_list |> random_elem(seed)
+      x_list = x_list |> List.delete(z)
+      missing_pairs = missing_pairs |> Map.put(x, x_list)
 
       # Remove x from the lists for y and z.
-      y_list = List.delete missing_pairs[y], x
-      z_list = List.delete missing_pairs[z], x
+      y_list = missing_pairs[y] |> List.delete(x)
+      z_list = missing_pairs[z] |> List.delete(x)
 
       # Check if z is in y's list and y is in z's list, in which case, we can easily add the triple.
       if Enum.member?(y_list, z) and Enum.member?(z_list, y) do
-        y_list = List.delete y_list, z
-        missing_pairs = Map.put missing_pairs, y, y_list
+        y_list = y_list |> List.delete(z)
+        missing_pairs = missing_pairs |> Map.put(y, y_list)
 
-        z_list = List.delete z_list, y
-
-        missing_pairs
-        |> Map.put(z, z_list)
+        z_list = z_list |> List.delete(y)
+        missing_pairs |> Map.put(z, z_list)
         |> generate([[x, y, z] | triples], seed)
 
       else
         # Otherwise, y and z already appear together in some triple with w.
-        triple = Enum.find triples, nil, &triple_covers?(&1, y, z)
-        triples = List.delete triples, triple
-        w = third_element triple, y, z
+        triple = triples |> Enum.find(nil, &triple_covers?(&1, y, z))
+        triples = triples |> List.delete(triple)
+        w = triple |> third_element(y, z)
 
         # Mark y and w as not being covered.
         y_list = [w | y_list]
-        missing_pairs = Map.put missing_pairs, y, y_list
+        missing_pairs = missing_pairs |> Map.put(y, y_list)
 
         # Mark z and w as not being covered.
         z_list = [w | z_list]
-        missing_pairs = Map.put missing_pairs, z, z_list
+        missing_pairs = missing_pairs |> Map.put(z, z_list)
 
         # Mark w and y and z as not being covered.
         w_list = [y, z | missing_pairs[w]]
@@ -89,7 +85,7 @@ defmodule SteinerTripleSystems do
 
   # Get a random element from a list.
   defp random_elem(list, seed) when is_list(list) and length(list) > 0 do
-    {idx, seed} = :rand.uniform_s length(list), seed
+    {idx, seed} = list |> length |> :rand.uniform_s(seed)
     {Enum.at(list, idx - 1), seed}
   end
 
