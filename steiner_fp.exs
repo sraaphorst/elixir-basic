@@ -1,5 +1,6 @@
 #!/usr/bin/env iex
 # By Sebastian Raaphorst, 2023.
+# See steiner.exs for updated version.
 
 defmodule SteinerTripleSystems do
   def generate(v, seed) when is_integer(v) and (rem(v, 6) == 1 or rem(v, 6) == 3) do
