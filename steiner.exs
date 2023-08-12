@@ -79,7 +79,9 @@ defmodule SteinerTripleSystems do
 
   # Check if all pairs covered, i.e. we have a complete system.
   defp all_pairs_covered?(missing_pairs) do
-    Enum.all? Map.values(missing_pairs), &Enum.empty?/1
+    missing_pairs
+    |> Map.values
+    |> Enum.all?(&Enum.empty?/1)
   end
 
   # Get a random element from a list.
