@@ -1,5 +1,5 @@
 #!/usr/bin/env iex
-
+# By Sebastian Raaphorst, 2023.
 # A module to perform hill-climbing to find a Steiner triple system
 # using functional programming.
 
