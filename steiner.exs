@@ -15,7 +15,7 @@ defmodule SteinerTripleSystems do
     else
       # Get a point missing a pair.
       candidates = for {key, value} <- missing_pairs, (not Enum.empty? value), do: key
-      {x, seed} = random_elem candidates, seed
+      {x, seed} = candidates |> random_elem(seed)
       x_list = missing_pairs[x]
 
       # Get two random elements from the list of uncovered pairs with x and delete them
