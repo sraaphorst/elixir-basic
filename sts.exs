@@ -71,6 +71,13 @@ end
 
 
 defmodule STS do
+  ############
+  # Generate #
+  ############
+  def generate(v) when is_integer(v) and (rem(v, 6) == 1 or rem(v, 6) == 3) do
+    nil
+  end
+
   #####################
   # Create the points #
   #####################
