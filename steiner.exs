@@ -20,7 +20,7 @@ defmodule SteinerTripleSystems do
 
       # Get two random elements from the list of uncovered pairs with x and delete them
       # from the list with x.
-      {y, seed} = random_elem x_list, seed
+      {y, seed} = x_list |> random_elem(seed)
       x_list = x_list |> List.delete(y)
       {z, seed} = x_list |> random_elem(seed)
       x_list = x_list |> List.delete(z)
