@@ -94,7 +94,7 @@ defmodule SteinerTripleSystems do
   end
 
   # Given a triple and two of its elements, x and y, find the third element.
-  defp third_element(triple, y, z), do: Enum.find(triple, fn x -> x != y and x != z end)
+  defp third_element(triple, y, z), do: Enum.find(triple, &(&1 != y and &1 != z))
 end
 
 seed = :rand.seed(:exsplus, {1, 2, 3})
