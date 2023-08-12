@@ -16,7 +16,8 @@ defmodule SteinerTripleSystems do
       for triple <- triples, do: Enum.sort(triple)
     else
       # Get a point missing a pair.
-      x = missing_pairs |> Map.keys |> random_elem
+      candidates = for {key, value} <- missing_pairs, (not Enum.empty? value), do: key
+      x = random_elem candidates
       x_list = missing_pairs[x]
 
       # Get two random elements from the list of uncovered pairs with x and delete them
@@ -97,7 +98,7 @@ defmodule SteinerTripleSystems do
   defp third_element(triple, y, z), do: Enum.find(triple, fn x -> x != y and x != z end)
 end
 
-triples = SteinerTripleSystems.generate(7)
-IO.inspect triples
+triples = SteinerTripleSystems.generate(19)
+Enum.each triples, fn(t) -> IO.inspect t, charlists: :as_lists end
 
 System.halt 0
