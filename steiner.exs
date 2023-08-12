@@ -1,30 +1,29 @@
 #!/usr/bin/env iex
 
-# The random seed to use.
-# As we are only using one process, we do not need to retrieve and pass the sede aro
-:rand.seed(:exsplus, {1, 2, 3})
+# A module to perform hill-climbing to find a Steiner triple system
+# using functional programming.
 
 defmodule SteinerTripleSystems do
-  def generate(v) when is_integer(v) and (rem(v, 6) == 1 or rem(v, 6) == 3) do
+  def generate(v, seed) when is_integer(v) and (rem(v, 6) == 1 or rem(v, 6) == 3) do
     missing_pairs = create_missing_pairs_map v
-    generate [], missing_pairs
+    generate [], missing_pairs, seed
   end
 
-  defp generate(triples, missing_pairs) do
+  defp generate(triples, missing_pairs, seed) do
     if all_pairs_covered? missing_pairs do
       # Sort the triples
       for triple <- triples, do: Enum.sort(triple)
     else
       # Get a point missing a pair.
       candidates = for {key, value} <- missing_pairs, (not Enum.empty? value), do: key
-      x = random_elem candidates
+      {x, seed} = random_elem candidates, seed
       x_list = missing_pairs[x]
 
       # Get two random elements from the list of uncovered pairs with x and delete them
       # from the list with x.
-      y = random_elem x_list
+      {y, seed} = random_elem x_list, seed
       x_list = List.delete x_list, y
-      z = random_elem x_list
+      {z, seed} = random_elem x_list, seed
       x_list = List.delete x_list, z
       missing_pairs = Map.put missing_pairs, x, x_list
 
@@ -40,7 +39,7 @@ defmodule SteinerTripleSystems do
         z_list = List.delete z_list, y
         missing_pairs = Map.put missing_pairs, z, z_list
 
-        generate [[x, y, z] | triples], missing_pairs
+        generate [[x, y, z] | triples], missing_pairs, seed
 
       else
         # Otherwise, y and z already appear together in some triple with w.
@@ -60,7 +59,7 @@ defmodule SteinerTripleSystems do
         w_list = [y, z | missing_pairs[w]]
         missing_pairs = Map.put missing_pairs, w, w_list
 
-        generate [[x, y, z] | triples], missing_pairs
+        generate [[x, y, z] | triples], missing_pairs, seed
       end
     end
   end
@@ -84,9 +83,9 @@ defmodule SteinerTripleSystems do
   end
 
   # Get a random element from a list.
-  defp random_elem(list) when is_list(list) and length(list) > 0 do
-    idx = :rand.uniform(length(list)) - 1
-    Enum.at list, idx
+  defp random_elem(list, seed) when is_list(list) and length(list) > 0 do
+    {idx, seed} = :rand.uniform_s length(list), seed
+    {Enum.at(list, idx - 1), seed}
   end
 
   # Determine if a triple covers a pair {y, z}.
@@ -98,7 +97,8 @@ defmodule SteinerTripleSystems do
   defp third_element(triple, y, z), do: Enum.find(triple, fn x -> x != y and x != z end)
 end
 
-triples = SteinerTripleSystems.generate(19)
+seed = :rand.seed(:exsplus, {1, 2, 3})
+triples = SteinerTripleSystems.generate(19, seed)
 Enum.each triples, fn(t) -> IO.inspect t, charlists: :as_lists end
 
 System.halt 0
