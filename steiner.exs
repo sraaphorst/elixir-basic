@@ -36,8 +36,7 @@ defmodule SteinerTripleSystems do
         missing_pairs = missing_pairs |> Map.put(y, y_list)
 
         z_list = z_list |> List.delete(y)
-        missing_pairs |> Map.put(z, z_list)
-        |> generate([[x, y, z] | triples], seed)
+        missing_pairs |> Map.put(z, z_list) |> generate([[x, y, z] | triples], seed)
 
       else
         # Otherwise, y and z already appear together in some triple with w.
